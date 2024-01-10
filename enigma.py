@@ -1,38 +1,40 @@
 from typing import Dict, List
-from utils import caesar_shift
 
 class Rotor:
-    def __init__(self, alphabet: str, notch: str ="A", ring_setting: str = 'A', position: str = 'A'):
-        self.position = ord(position) - 65
-        self.notch = ord(notch) - 65
-        ring_setting = ord(ring_setting) - 65
+    def __init__(self, alphabet: str, notch: str ="A", ring_setting: str = 'A', position: str = 'A', a_ord: int = 65, alphabet_length: int = 26):
+        self.position = ord(position) - a_ord
+        self.notch = ord(notch) - a_ord
+        ring_setting = ord(ring_setting) - a_ord
+        self.a_ord = a_ord
         self.alphabet = caesar_shift(alphabet, ring_setting)
+        self.alphabet_length = alphabet_length
         if ring_setting > 0:
-            self.alphabet = self.alphabet[26-ring_setting:] + self.alphabet[0:26-ring_setting]
+            self.alphabet = self.alphabet[alphabet_length-ring_setting:] + self.alphabet[0:alphabet_length-ring_setting]
         
 
     def rotate(self):
-        self.position = (self.position + 1) % 26
+        self.position = (self.position + 1) % self.alphabet_length
     
     def forward_movement(self, char: str):
-        char_index = (ord(char) - 65) % 26
-        pos = ord(self.alphabet[(char_index + self.position) % 26]) - 65
-        encrypted_char_index = (pos - self.position + 26) % 26 
-        return chr(encrypted_char_index + 65)
+        char_index = (ord(char) - self.a_ord) % self.alphabet_length
+        pos = ord(self.alphabet[(char_index + self.position) % self.alphabet_length]) - self.a_ord
+        encrypted_char_index = (pos - self.position + self.alphabet_length) % self.alphabet_length 
+        return chr(encrypted_char_index + self.a_ord)
 
     def backward_movement(self, char: str):
-        char_index = self.alphabet.index(chr(65 + ((ord(char) + self.position - 65) % 26)))
-        encrypted_char_index = (char_index - self.position + 26) % 26
-        return chr(encrypted_char_index + 65)
+        char_index = self.alphabet.index(chr(self.a_ord + ((ord(char) + self.position - self.a_ord) % self.alphabet_length)))
+        encrypted_char_index = (char_index - self.position + self.alphabet_length) % self.alphabet_length
+        return chr(encrypted_char_index + self.a_ord)
 
     
     
 class Reflector:
-    def __init__(self, alphabet: str):
+    def __init__(self, alphabet: str, a_ord: int = 65):
         self.alphabet = alphabet
+        self.a_ord = a_ord
 
     def reflect(self, char: str):
-        return self.alphabet[ord(char) - 65]
+        return self.alphabet[ord(char) - self.a_ord]
 
 
 class Plugboard:
@@ -71,4 +73,3 @@ class Enigma:
             else:
                 encrypted_message += char
         return encrypted_message
-
